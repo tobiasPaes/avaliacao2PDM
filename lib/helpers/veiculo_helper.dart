@@ -12,56 +12,63 @@ class VeiculoHelper {
   Database? _db;
 
   Future<Database?> get db async {
-    if (_db == null) _db = await initDb();
+    _db ??= await initDb();
     return _db;
   }
 
   Future<Database> initDb() async {
     String? databasePath = await getDatabasesPath();
-    if (databasePath == null) databasePath = "";
+    // if (databasePath == null) databasePath = "";
     String path = join(databasePath, "veiculos.db");
 
     return await openDatabase(path, version: 1,
         onCreate: (Database db, int newerVersion) async {
-      await db.execute(
-          "create table ${Veiculo.veiculoTable} (${Veiculo.idColumn} integer primary key autoincrement,"
-          "${Veiculo.anoColumn} integer,"
-          "${Veiculo.corColumn} text,"
-          "${Veiculo.marcaColumn} text,"
-          "${Veiculo.modeloColumn} text,"
-          "${Veiculo.placaColumn} text)");
+          await db.execute(
+          "CREATE TABLE ${Veiculo.veiculoTable} ("
+          "${Veiculo.idColumn} INTEGER PRIMARY KEY AUTOINCREMENT,"
+          "${Veiculo.anoColumn} INTEGER,"
+          "${Veiculo.corColumn} TEXT,"
+          "${Veiculo.marcaColumn} TEXT,"
+          "${Veiculo.modeloColumn} TEXT,"
+          "${Veiculo.placaColumn} TEXT)"
+        );
     });
   }
 
   Future<Veiculo> saveVeiculo(Veiculo v) async {
     Database? dbVeiculo = await db;
     if (dbVeiculo != null) {
-      v.id = await dbVeiculo.insert(Veiculo.veiculoTable, v.toMap());
+      await dbVeiculo.insert(Veiculo.veiculoTable, v.toMap());
     }
     return v;
   }
 
   Future<Veiculo?> getVeiculo(int id) async {
-    Database? dbVeiculo = await db;
-    if (dbVeiculo != null) {
-      List<Map> maps = await dbVeiculo.query(Veiculo.veiculoTable,
-          columns: [
-            Veiculo.anoColumn,
-            Veiculo.corColumn,
-            Veiculo.idColumn,
-            Veiculo.marcaColumn,
-            Veiculo.modeloColumn,
-            Veiculo.placaColumn
-          ],
-          where: '${Veiculo.idColumn} = ?',
-          whereArgs: [id]);
-      if (maps.length > 0) {
-        return Veiculo.fromMap(maps.first);
-      } else {
-        return null;
+    try {
+      Database? dbVeiculo = await db;
+      if (dbVeiculo != null) {
+        List<Map<String, dynamic>> maps = await dbVeiculo.query(Veiculo.veiculoTable,
+            columns: [
+              Veiculo.anoColumn,
+              Veiculo.corColumn,
+              Veiculo.idColumn,
+              Veiculo.marcaColumn,
+              Veiculo.modeloColumn,
+              Veiculo.placaColumn
+            ],
+            where: '${Veiculo.idColumn} = ?',
+            whereArgs: [id]);
+        if (maps.isNotEmpty) {
+          // print(Veiculo.fromMap(maps.first));
+          return Veiculo.fromMap(maps.first);
+        } else {
+          return null;
+        }
       }
+      return null;
+    } catch (e) {
+      return null;
     }
-    return null;
   }
 
   Future<int> deleteVeiculo(int id) async {
@@ -84,7 +91,7 @@ class VeiculoHelper {
     }
   }
 
-  Future<List> getAll() async{
+  Future<List> getAll() async {
     Database? dbVeiculo = await db;
     if (dbVeiculo != null) {
       List listMap = await dbVeiculo.query(Veiculo.veiculoTable);
@@ -93,6 +100,7 @@ class VeiculoHelper {
       for (Map m in listMap) {
         listVeiculos.add(Veiculo.fromMap(m));
       }
+      // print(listVeiculos);
       return listVeiculos;
     } else {
       return [];

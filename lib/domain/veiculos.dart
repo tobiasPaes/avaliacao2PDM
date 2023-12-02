@@ -37,7 +37,6 @@ class Veiculo {
       anoColumn: ano,
       corColumn: cor,
       placaColumn: placa,
-      idColumn: id,
     };
   }
 }
