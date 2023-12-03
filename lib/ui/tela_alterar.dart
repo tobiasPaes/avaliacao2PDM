@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:av2/domain/veiculos.dart';
 import 'package:av2/ui/tela_sobre.dart';
 import 'package:av2/widgets/form_fiel_custom.dart';
@@ -26,17 +28,17 @@ class _TelaAlteraState extends State<TelaAltera> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: const Text('Meus Veiculos'),
-          actions: [
-            IconButton(
-                onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => const TelaSobre()));
-                },
-                icon: const Icon(Icons.info))
-          ],
-        ),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text('Meus Veiculos'),
+        actions: [
+          IconButton(
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => const TelaSobre()));
+              },
+              icon: const Icon(Icons.info))
+        ],
+      ),
       body: FormVeiculoAltera(
         id: id,
       ),
@@ -69,7 +71,11 @@ class _FormVeiculoAlteraState extends State<FormVeiculoAltera> {
 
   Veiculo? v;
 
+
+
+
   void soPegando() async {
+    print("ID do veículo a ser obtido: $id");
     v = await veiculoHelper.getVeiculo(id);
     if (v != null) {
       marcaController.text = v!.marca;
@@ -145,19 +151,25 @@ class _FormVeiculoAlteraState extends State<FormVeiculoAltera> {
                 },
               ),
               TextButton(
-                  onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
-                      Veiculo v = Veiculo(
-                          marcaController.text,
-                          int.parse(anoController.text),
-                          modeloController.text,
-                          placaController.text,
-                          corController.text);
-                      veiculoHelper.updateVeiculo(v);
-                      Navigator.pop(context);
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+                    Veiculo? v = await veiculoHelper.getVeiculo(id);
+                    v!.marca = marcaController.text;
+                    v.ano = int.parse(anoController.text);
+                    v.modelo = modeloController.text;
+                    v.placa = placaController.text;
+                    v.cor = corController.text;
+                    int result = await veiculoHelper.updateVeiculo(v);
+                    if (result > 0) {
+                      print("Atualização bem-sucedida.");
+                      Navigator.pop(context, v);
+                    } else {
+                      print("Erro durante a atualização do veículo.");
                     }
-                  },
-                  child: const Text("Atualizar Veiculo"))
+                  }
+                },
+                child: const Text("Atualizar Veiculo"),
+              )
             ],
           ),
         ));

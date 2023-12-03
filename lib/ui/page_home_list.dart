@@ -63,33 +63,42 @@ class ListBody extends StatefulWidget {
 
 class _ListBodyState extends State<ListBody> {
   final veiculoHelper = VeiculoHelper();
-  late Future<List> veiculos;
+  late Future<List<Veiculo>> veiculos;
 
   @override
   void initState() {
     super.initState();
-    veiculoHelper.getAll().then((value) {
+    _atualizarLista();
+  }
 
+  Future<void> _atualizarLista() async {
+    setState(() {
+      veiculos = veiculoHelper.getAll();
     });
   }
 
+
+
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: veiculos,
-      builder: (context, snapshot) {
-        return snapshot.hasData
-            ? ListView.builder(
-                padding: const EdgeInsets.all(10.0),
-                itemCount: snapshot.data!.length,
-                itemBuilder: (context, i) {
-                  return ListItem(veiculo: snapshot.data![i]);
-                },
-              )
-            : const Center(
-                child: CircularProgressIndicator(),
-              );
-      },
+    return RefreshIndicator(
+      onRefresh: _atualizarLista,
+      child: FutureBuilder(
+        future: veiculos,
+        builder: (context, snapshot) {
+          return snapshot.hasData
+              ? ListView.builder(
+                  padding: const EdgeInsets.all(10.0),
+                  itemCount: snapshot.data!.length,
+                  itemBuilder: (context, i) {
+                    return ListItem(veiculo: snapshot.data![i]);
+                  },
+                )
+              : const Center(
+                  child: CircularProgressIndicator(),
+                );
+        },
+      ),
     );
   }
 }
@@ -114,7 +123,8 @@ class ListItem extends StatelessWidget {
                 builder: (context) => TelaAltera(identificador: veiculo.id)));
       },
       child: ListTile(
-        title: Text(veiculo.placa),
+        title: Text(veiculo.marca),
+        subtitle: Text(veiculo.modelo),
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:av2/domain/veiculos.dart';
 import 'package:av2/helpers/veiculo_helper.dart';
+import 'package:av2/ui/page_home_list.dart';
 import 'package:av2/widgets/form_fiel_custom.dart';
 import 'package:flutter/material.dart';
 
@@ -21,6 +22,7 @@ class _FormVeiculoBodyState extends State<FormVeiculoBody> {
   final placaController = TextEditingController();
 
   final veiculoHelper = VeiculoHelper();
+  
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +93,7 @@ class _FormVeiculoBodyState extends State<FormVeiculoBody> {
                           placaController.text,
                           corController.text);
                       veiculoHelper.saveVeiculo(v);
-                      Navigator.pop(context);
+                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => PageHomeList()),);
                       ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Veiculo Cadastrado')));
                     }
